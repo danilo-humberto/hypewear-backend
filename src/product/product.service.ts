@@ -19,8 +19,34 @@ export class ProductService {
     return this.prisma.product.create({ data: dto });
   }
 
-  findAll() {
+  findAll(filtros: {
+    name?: string;
+    nameCategory?: string;
+    precoMin?: number;
+    precoMax?: number;
+  }) {
+    const where: any = {};
+
+    if (filtros.name) {
+      where.name = { contains: filtros.name };
+    }
+
+    if (filtros.nameCategory) {
+      where.category = { name: filtros.nameCategory };
+    }
+
+    if (filtros.precoMin || filtros.precoMax) {
+      where.price = {};
+      if (filtros.precoMin) {
+        where.price.gte = filtros.precoMin;
+      }
+      if (filtros.precoMax) {
+        where.price.lte = filtros.precoMax;
+      }
+    }
+
     return this.prisma.product.findMany({
+      where,
       include: {
         category: true,
       },

@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -21,8 +22,18 @@ export class ProductController {
   }
 
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  findAll(
+    @Query('name') name?: string,
+    @Query('nameCategory') nameCategory?: string,
+    @Query('precoMin') precoMin?: string,
+    @Query('precoMax') precoMax?: string,
+  ) {
+    return this.productService.findAll({
+      name,
+      nameCategory,
+      precoMin: precoMin ? Number(precoMin) : undefined,
+      precoMax: precoMax ? Number(precoMax) : undefined,
+    });
   }
 
   @Get(':id')
