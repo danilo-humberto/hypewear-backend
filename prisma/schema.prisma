@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -30,6 +29,7 @@ model Product {
   estoque Int
   status String
   imagem String
+  items    OrderItem[]
 
   categoryId String
   category Category @relation(fields: [categoryId], references: [id])
@@ -50,6 +50,8 @@ model Client {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  orders Order[]
 }
 model Address {
   id String @id @default(uuid())
@@ -67,4 +69,36 @@ model Address {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  client        Client      @relation(fields: [clientId], references: [id])
+  clientId      String
+  status        OrderStatus @default(ABERTO)
+  items         OrderItem[]
+  subtotal      Float       @default(0)
+  total         Float       @default(0)
+  totalQuantity Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Float
+  subtotal  Float
+}
+
+
+enum OrderStatus {
+  ABERTO
+  AGUARDANDO_PAGAMENTO
+  PAGO
+  CANCELADO
 }
