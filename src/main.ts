@@ -4,22 +4,23 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
-    .setTitle('Hypewear API')
-    .setDescription('API description')
-    .setVersion('1.0')
-    .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+    const config = new DocumentBuilder()
+        .setTitle('Hypewear API')
+        .setDescription('API description')
+        .setVersion('1.0')
+        .build();
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true,
+        }),
+    );
 
-  await app.listen(process.env.PORT ?? 3000);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
+    SwaggerModule.setup('api', app, documentFactory);
+    await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
