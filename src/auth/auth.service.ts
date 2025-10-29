@@ -29,14 +29,14 @@ export class AuthService {
     return result;
   }
 
-  async login(user: { id: string; name: string; email: string }) {
-    const payload = { sub: user.id };
+  async login(client: { id: string; name: string; email: string }) {
+    const payload = { sub: client.id };
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+      client: {
+        id: client.id,
+        name: client.name,
+        email: client.email,
       },
     };
   }
@@ -45,12 +45,16 @@ export class AuthService {
     const hasUser = await this.clientService.findByEmail(dto.email);
     if (hasUser) throw new BadRequestException('Email já cadastrado');
 
-    const user = await this.clientService.create(dto);
-    const { password, ...result } = user;
-    const payload = { email: user.email, sub: user.id };
+    const client = await this.clientService.create(dto);
+    const { password, ...result } = client;
+    const payload = { email: client.email, sub: client.id };
     return {
       access_token: this.jwtService.sign(payload),
-      user: result,
+      client: {
+        id: client.id,
+        name: client.name,
+        email: client.email,
+      },
     };
   }
 }
