@@ -55,6 +55,10 @@ export class ClientService {
     return client;
   }
 
+  async findByEmail(email: string) {
+    return this.prisma.client.findUnique({ where: { email } });
+  }
+
   async update(id: string, dto: UpdateClientDto) {
     await this.findOne(id);
 
@@ -77,5 +81,9 @@ export class ClientService {
         id,
       },
     });
+  }
+
+  async comparePassword(password: string, hashPassword: string) {
+    return bcrypt.compare(password, hashPassword);
   }
 }
