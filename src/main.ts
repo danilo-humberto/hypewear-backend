@@ -8,7 +8,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Hypewear API')
-    .setDescription('API description')
+    .setDescription('Endpoints da API do E-commerce HypeWear')
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
