@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderStatus } from '@prisma/client'; 
+import { OrderStatus } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -17,7 +17,7 @@ export class OrderService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: { items: { include: { product: true } }, client: true },
@@ -34,7 +34,9 @@ export class OrderService {
     return this.prisma.$transaction(async (tx) => {
       const client = await tx.client.findUnique({ where: { id: clientId } });
       if (!client) {
-        throw new NotFoundException(`Cliente com ID ${clientId} não encontrado.`);
+        throw new NotFoundException(
+          `Cliente com ID ${clientId} não encontrado.`,
+        );
       }
 
       let totalOrderPrice = 0;
@@ -46,10 +48,14 @@ export class OrderService {
         });
 
         if (!product) {
-          throw new NotFoundException(`Produto com ID ${item.productId} não encontrado.`);
+          throw new NotFoundException(
+            `Produto com ID ${item.productId} não encontrado.`,
+          );
         }
         if (product.estoque < item.quantity) {
-          throw new BadRequestException(`Estoque insuficiente para o produto: ${product.name}.`);
+          throw new BadRequestException(
+            `Estoque insuficiente para o produto: ${product.name}.`,
+          );
         }
 
         totalOrderPrice += product.price * item.quantity;
@@ -57,7 +63,7 @@ export class OrderService {
 
         return {
           ...item,
-          price: product.price, 
+          price: product.price,
         };
       });
 
@@ -66,9 +72,9 @@ export class OrderService {
       const order = await tx.order.create({
         data: {
           clientId: clientId,
-          status: OrderStatus.ABERTO, 
+          status: OrderStatus.ABERTO,
           total: totalOrderPrice,
-          subtotal: totalOrderPrice, 
+          subtotal: totalOrderPrice,
           totalQuantity: totalOrderQuantity,
         },
       });
@@ -83,7 +89,6 @@ export class OrderService {
         })),
       });
 
-    
       return tx.order.findUnique({
         where: { id: order.id },
         include: { items: true },
@@ -91,7 +96,7 @@ export class OrderService {
     });
   }
 
-  async confirmPayment(id: number) {
+  async confirmPayment(id: string) {
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({
         where: { id },
@@ -102,8 +107,13 @@ export class OrderService {
         throw new NotFoundException(`Pedido com ID ${id} não encontrado.`);
       }
 
-      if (order.status === OrderStatus.PAGO || order.status === OrderStatus.CANCELADO) {
-        throw new BadRequestException(`O pedido já está ${order.status} e não pode ser alterado.`);
+      if (
+        order.status === OrderStatus.PAGO ||
+        order.status === OrderStatus.CANCELADO
+      ) {
+        throw new BadRequestException(
+          `O pedido já está ${order.status} e não pode ser alterado.`,
+        );
       }
 
       for (const item of order.items) {

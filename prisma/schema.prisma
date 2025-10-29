@@ -59,7 +59,7 @@ model Address {
 }
 
 model Order {
-  id            Int         @id @default(autoincrement())
+  id            String         @id @default(uuid())
   clientId      String
   status        OrderStatus @default(ABERTO)
   subtotal      Float       @default(0)
@@ -72,8 +72,8 @@ model Order {
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
+  id        String     @id @default(uuid())
+  orderId   String
   productId String
   quantity  Int
   price     Float
