@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, NotFoundException, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  NotFoundException,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
@@ -12,7 +20,7 @@ export class OrderController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.orderService.findOne(id);
   }
 
@@ -22,7 +30,7 @@ export class OrderController {
   }
 
   @Post(':id/confirm-payment')
-  confirmPayment(@Param('id', ParseIntPipe) id: number) {
+  confirmPayment(@Param('id') id: string) {
     return this.orderService.confirmPayment(id);
   }
 }
