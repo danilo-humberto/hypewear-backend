@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,87 +8,79 @@ datasource db {
 }
 
 model Category {
-  id String @id @default(uuid())
-  name String
-  produtos Product[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  produtos  Product[]
 }
+
 model Product {
-  id String @id @default(uuid())
-  name String
+  id          String      @id @default(uuid())
+  name        String
   description String
-  price Float
-  estoque Int
-  status String
-  imagem String
-  items    OrderItem[]
-
-  categoryId String
-  category Category @relation(fields: [categoryId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  price       Float
+  estoque     Int
+  status      String
+  imagem      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  categoryId  String
+  items       OrderItem[]
+  category    Category    @relation(fields: [categoryId], references: [id])
 }
-
 
 model Client {
-  id String @id @default(uuid())
-  name String
-  email String @unique
-  password String
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  password    String
   numberPhone String?
-
-  addresses Address[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  orders Order[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  addresses   Address[]
+  orders      Order[]
 }
+
 model Address {
-  id String @id @default(uuid())
-  cep String
-  logradouro String
-  numero String
+  id          String   @id @default(uuid())
+  cep         String
+  logradouro  String
+  numero      String
   complemento String
-  bairro String
-  cidade String
-  estado String
-  isDefault Boolean @default(true)
-
-  clientId String
-  client Client @relation(fields: [clientId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  bairro      String
+  cidade      String
+  estado      String
+  clientId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isDefault   Boolean  @default(true)
+  client      Client   @relation(fields: [clientId], references: [id])
 }
 
 model Order {
   id            Int         @id @default(autoincrement())
-  client        Client      @relation(fields: [clientId], references: [id])
   clientId      String
   status        OrderStatus @default(ABERTO)
-  items         OrderItem[]
   subtotal      Float       @default(0)
   total         Float       @default(0)
   totalQuantity Int         @default(0)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  client        Client      @relation(fields: [clientId], references: [id])
+  items         OrderItem[]
 }
 
 model OrderItem {
   id        Int     @id @default(autoincrement())
-  order     Order   @relation(fields: [orderId], references: [id])
   orderId   Int
-  product   Product @relation(fields: [productId], references: [id])
   productId String
   quantity  Int
   price     Float
   subtotal  Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 }
-
 
 enum OrderStatus {
   ABERTO
