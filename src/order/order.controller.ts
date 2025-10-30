@@ -24,6 +24,11 @@ export class OrderController {
     return this.orderService.findOne(id);
   }
 
+  @Get('client/:clientId')
+  findByClient(@Param('clientId') clientId: string) {
+    return this.orderService.findByClient(clientId);
+  }
+
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
