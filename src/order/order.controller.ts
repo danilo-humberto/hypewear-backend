@@ -34,8 +34,4 @@ export class OrderController {
     return this.orderService.create(createOrderDto);
   }
 
-  @Post(':id/confirm-payment')
-  confirmPayment(@Param('id') id: string) {
-    return this.orderService.confirmPayment(id);
-  }
 }

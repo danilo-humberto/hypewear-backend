@@ -68,6 +68,7 @@ model Order {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   client        Client      @relation(fields: [clientId], references: [id])
+  payments      Payment[]
   items         OrderItem[]
 }
 
@@ -85,6 +86,30 @@ model OrderItem {
 enum OrderStatus {
   ABERTO
   AGUARDANDO_PAGAMENTO
+  PAGO
+  CANCELADO
+}
+
+model Payment {
+  id        Int                 @id @default(autoincrement())
+  orderId   String              
+  order     Order               @relation(fields: [orderId], references: [id])
+  method    PaymentMethodType
+  status    PaymentStatusType   @default(PENDENTE)
+  value     Float
+  date      DateTime            @default(now())
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+}
+
+enum PaymentMethodType {
+  CARTAO
+  BOLETO
+  PIX
+}
+
+enum PaymentStatusType {
+  PENDENTE
   PAGO
   CANCELADO
 }

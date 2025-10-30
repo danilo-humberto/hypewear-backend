@@ -104,43 +104,5 @@ export class OrderService {
     });
   }
 
-  async confirmPayment(id: string) {
-    return this.prisma.$transaction(async (tx) => {
-      const order = await tx.order.findUnique({
-        where: { id },
-        include: { items: true },
-      });
-
-      if (!order) {
-        throw new NotFoundException(`Pedido com ID ${id} não encontrado.`);
-      }
-
-      if (
-        order.status === OrderStatus.PAGO ||
-        order.status === OrderStatus.CANCELADO
-      ) {
-        throw new BadRequestException(
-          `O pedido já está ${order.status} e não pode ser alterado.`,
-        );
-      }
-
-      for (const item of order.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            estoque: {
-              decrement: item.quantity,
-            },
-          },
-        });
-      }
-
-      const updatedOrder = await tx.order.update({
-        where: { id },
-        data: { status: OrderStatus.PAGO },
-      });
-
-      return updatedOrder;
-    });
-  }
+  
 }

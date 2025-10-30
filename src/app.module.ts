@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
-import { AddressModule } from './address/address.module';
-import { CategoryModule } from './category/category.module';
-import { ClientModule } from './client/client.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { ProductModule } from './product/product.module';
-import { OrderModule } from './order/order.module';
-import { AuthModule } from './auth/auth.module';
+import { Module } from "@nestjs/common";
+import { AddressModule } from "./address/address.module";
+import { CategoryModule } from "./category/category.module";
+import { ClientModule } from "./client/client.module";
+import { PrismaModule } from "./prisma/prisma.module";
+import { ProductModule } from "./product/product.module";
+import { OrderModule } from "./order/order.module";
+import { PaymentModule } from "./payments/payments.module";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     PrismaModule,
     OrderModule,
     AuthModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [],
