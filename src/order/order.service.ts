@@ -28,6 +28,14 @@ export class OrderService {
     return order;
   }
 
+  findByClient(clientId: string) {
+    return this.prisma.order.findMany({
+      where: { clientId },
+      include: { items: { include: { product: true } }, client: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async create(createOrderDto: CreateOrderDto) {
     const { clientId, items } = createOrderDto;
 
