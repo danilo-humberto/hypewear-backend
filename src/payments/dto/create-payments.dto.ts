@@ -10,10 +10,10 @@ export class CreatePaymentDto {
   @ApiProperty({
     description: 'ID do pedido a ser pago.',
     example: 550,
-    type: Number
+    type: String
   })
   @IsNotEmpty()
-  orderId: number;
+  orderId: string;
 
   @ApiProperty({
     description: 'Método de pagamento.',

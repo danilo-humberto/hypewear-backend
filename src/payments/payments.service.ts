@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from "@nestjs/common";
-import {PrismaService} from 'src/prisma/prisma.service';
-import {CreatePaymentDto} from './dto/create-payments.dto';
-import {OrderStatus, PaymentStatusType, PaymentMethodType} from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreatePaymentDto } from './dto/create-payments.dto';
+import { OrderStatus, PaymentStatusType, PaymentMethodType } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService) { }
 
     findAll() {
         return this.prisma.payment.findMany({
@@ -30,29 +30,33 @@ export class PaymentService {
         return this.prisma.$transaction(async (tx) => {
             const order = await tx.order.findUnique({
                 where: { id: orderId },
-                include: { payment: true }, 
+                include: { payments: true },
             });
 
             if (!order) {
                 throw new NotFoundException(`Pedido com ID ${orderId} não encontrado.`);
             }
 
-            if (order.payment && order.payment.status !== PaymentStatusType.CANCELADO) {
-              throw new ConflictException(`O Pedido já possui um pagamento ${order.payment.status}.`);
+            const activePayment = order.payments.find(
+                (p) => p.status !== PaymentStatusType.CANCELADO
+            );
+
+            if (activePayment) {
+                throw new ConflictException(`O Pedido já possui um pagamento ${activePayment.status}.`);
             }
 
             if (order.status !== OrderStatus.ABERTO) {
-              throw new BadRequestException(`Pagamento só pode ser criado para pedidos em status ${OrderStatus.ABERTO}.`);
+                throw new BadRequestException(`Pagamento só pode ser criado para pedidos em status ${OrderStatus.ABERTO}.`);
             }
-            
+
             const paymentValue = value || order.total;
 
             const newPayment = await tx.payment.create({
                 data: {
                     orderId,
-                    method: method as PaymentMethodType, 
+                    method: method as PaymentMethodType,
                     value: paymentValue,
-                    status: PaymentStatusType.PENDENTE, 
+                    status: PaymentStatusType.PENDENTE,
                     date: new Date(),
                 },
             });
@@ -80,7 +84,7 @@ export class PaymentService {
 
             const order = payment.order;
 
-            if (payment.status !== PaymentStatusType.PENDENTE) { 
+            if (payment.status !== PaymentStatusType.PENDENTE) {
                 throw new BadRequestException(`Pagamento já está ${payment.status}.`);
             }
 
@@ -92,7 +96,7 @@ export class PaymentService {
                     },
                 }),
             );
-            await Promise.all(stockUpdates); 
+            await Promise.all(stockUpdates);
 
             await tx.payment.update({
                 where: { id: paymentId },
@@ -102,7 +106,7 @@ export class PaymentService {
             return tx.order.update({
                 where: { id: order.id },
                 data: { status: OrderStatus.PAGO },
-                include: { payment: true }, 
+                include: { payments: true }, 
             });
         });
     }
@@ -116,9 +120,9 @@ export class PaymentService {
 
             if (!payment) {
                 throw new NotFoundException(`Pagamento com ID ${paymentId} não encontrado.`);
-            } else if (payment.status === PaymentStatusType.PAGO) { 
+            } else if (payment.status === PaymentStatusType.PAGO) {
                 throw new BadRequestException('Não é possível cancelar um pagamento já efetuado.');
-            } else if (payment.status === PaymentStatusType.CANCELADO) { 
+            } else if (payment.status === PaymentStatusType.CANCELADO) {
                 return payment;
             }
 
@@ -130,7 +134,7 @@ export class PaymentService {
             return tx.order.update({
                 where: { id: payment.orderId },
                 data: { status: OrderStatus.ABERTO },
-                include: { payment: true },
+                include: { payments: true }, // <-- CORRIGIDO 4/4 (era 'payment')
             });
         });
     }

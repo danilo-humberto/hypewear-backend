@@ -92,7 +92,7 @@ enum OrderStatus {
 
 model Payment {
   id        Int                 @id @default(autoincrement())
-  orderId   String              @unique
+  orderId   String              
   order     Order               @relation(fields: [orderId], references: [id])
   method    PaymentMethodType
   status    PaymentStatusType   @default(PENDENTE)
