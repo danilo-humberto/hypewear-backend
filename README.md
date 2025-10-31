@@ -10,11 +10,9 @@ A API utiliza **JWT** para autenticação e **Swagger** para documentação inte
 Você encontra o front-end em: https://github.com/danilo-humberto/hypewear
 
 ## Colaboradores
-```
- # [Danilo Humberto](https://github.com/danilo-humberto)
- # [Leandro Silva](https://github.com/leandroxzq)
- # [Juliana Felix](https://github.com/feliixjuliana)
-```
+* [Danilo Humberto](https://github.com/danilo-humberto)
+* [Leandro Silva](https://github.com/leandroxzq)
+* [Juliana Felix](https://github.com/feliixjuliana)
 ## Ferramentas do projeto
 
 ```
