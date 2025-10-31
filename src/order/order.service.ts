@@ -2,10 +2,10 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-} from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderStatus } from '@prisma/client';
+} from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { OrderStatus } from "@prisma/client";
 
 @Injectable()
 export class OrderService {
@@ -31,8 +31,12 @@ export class OrderService {
   findByClient(clientId: string) {
     return this.prisma.order.findMany({
       where: { clientId },
-      include: { items: { include: { product: true } }, client: true },
-      orderBy: { createdAt: 'desc' },
+      include: {
+        items: { include: { product: true } },
+        client: true,
+        payments: true,
+      },
+      orderBy: { createdAt: "desc" },
     });
   }
 
@@ -43,7 +47,7 @@ export class OrderService {
       const client = await tx.client.findUnique({ where: { id: clientId } });
       if (!client) {
         throw new NotFoundException(
-          `Cliente com ID ${clientId} não encontrado.`,
+          `Cliente com ID ${clientId} não encontrado.`
         );
       }
 
@@ -57,12 +61,12 @@ export class OrderService {
 
         if (!product) {
           throw new NotFoundException(
-            `Produto com ID ${item.productId} não encontrado.`,
+            `Produto com ID ${item.productId} não encontrado.`
           );
         }
         if (product.estoque < item.quantity) {
           throw new BadRequestException(
-            `Estoque insuficiente para o produto: ${product.name}.`,
+            `Estoque insuficiente para o produto: ${product.name}.`
           );
         }
 
@@ -103,6 +107,4 @@ export class OrderService {
       });
     });
   }
-
-  
 }
