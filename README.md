@@ -55,124 +55,128 @@ $ npm run start:dev
 $ npm run test
 ```
 
-## Rotas
-
-Nossos endpoints
-
-# API Documentation
+## API Documentation
 
 ## Autenticação (Auth)
 
-### **POST /auth/login**
-Realiza o login do cliente e retorna um token JWT.
+```bash
+# Realiza o login do cliente e retorna um token JWT
+POST /auth/login
 
-### **POST /auth/register**
-Registra um novo cliente (já com hash na senha) e retorna um token JWT.
+# Registra um novo cliente (já com hash na senha) e retorna um token JWT
+POST /auth/register
+```
 
 ---
 
 ## Clientes (Clients)
 
-### **POST /clients**
-Cria um novo cliente (usado pelo `/auth/register`).
+```bash
+# Cria um novo cliente (usado pelo /auth/register)
+POST /clients
 
-### **GET /clients**
-Retorna todos os clientes (sem a senha).
+# Retorna todos os clientes (sem a senha)
+GET /clients
 
-### **GET /clients/:id**
-Busca um cliente específico por ID (com a senha).
+# Busca um cliente específico por ID (com a senha)
+GET /clients/:id
 
-### **PATCH /clients/:id**
-Atualiza os dados de um cliente (pode incluir a senha, que será hasheada).
+# Atualiza os dados de um cliente (pode incluir a senha, que será hasheada)
+PATCH /clients/:id
 
-### **DELETE /clients/:id**
-Remove um cliente.
+# Remove um cliente
+DELETE /clients/:id
+```
 
 ---
 
 ## Produtos (Product)
 
-### **POST /product**
-Cria um novo produto (requer um `categoryId` válido).
+```bash
+# Cria um novo produto (requer um categoryId válido)
+POST /product
 
-### **GET /product**
-Busca todos os produtos.  
-Aceita filtros por *query params*:
-- `?name=` (filtra por nome)  
-- `?nameCategory=` (filtra por nome da categoria)  
-- `?precoMin=` e `?precoMax=` (filtra por faixa de preço)
+# Busca todos os produtos com filtros opcionais:
+# ?name=, ?nameCategory=, ?precoMin=, ?precoMax=
+GET /product
 
-### **GET /product/:id**
-Busca um produto específico por ID.
+# Busca um produto específico por ID
+GET /product/:id
 
-### **PATCH /product/:id**
-Atualiza um produto.
+# Atualiza um produto
+PATCH /product/:id
 
-### **DELETE /product/:id**
-Remove um produto.
+# Remove um produto
+DELETE /product/:id
+```
 
 ---
 
 ## Endereços (Address)
 
-### **POST /addresss**
-Cria um novo endereço para um cliente.  
-Se `isDefault: true`, remove o padrão dos outros endereços.
+```bash
+# Cria um novo endereço para um cliente
+# Se isDefault: true, remove o padrão dos outros endereços
+POST /addresss
 
-### **GET /addresss**
-Busca todos os endereços de todos os clientes.
+# Busca todos os endereços de todos os clientes
+GET /addresss
 
-### **GET /addresss/client/:id**
-Busca todos os endereços de um cliente específico.
+# Busca todos os endereços de um cliente específico
+GET /addresss/client/:id
 
-### **GET /addresss/:id**
-Busca um endereço específico por ID.
+# Busca um endereço específico por ID
+GET /addresss/:id
 
-### **PATCH /addresss/:id**
-Atualiza um endereço.  
-Se `isDefault: true`, remove o padrão dos outros.
+# Atualiza um endereço (se isDefault: true, remove o padrão dos outros)
+PATCH /addresss/:id
 
-### **PATCH /addresss/:id/default**
-Define um endereço específico como o padrão do cliente.
+# Define um endereço específico como o padrão do cliente
+PATCH /addresss/:id/default
 
-### **DELETE /addresss/:id**
-Remove um endereço.
+# Remove um endereço
+DELETE /addresss/:id
+```
 
 ---
 
 ## Pedidos (Order)
 
-### **POST /orders**
-Cria um novo pedido.  
-Esta rota é complexa: verifica o cliente, o estoque de cada produto, e cria o pedido e os `OrderItems` em uma transação.
+```bash
+# Cria um novo pedido
+# Verifica o cliente, o estoque e cria o pedido com os OrderItems em transação
+POST /orders
 
-### **GET /orders**
-Busca todos os pedidos.
+# Busca todos os pedidos
+GET /orders
 
-### **GET /orders/:id**
-Busca um pedido específico por ID.
+# Busca um pedido específico por ID
+GET /orders/:id
+```
 
 ---
 
 ## Pagamentos (Payment)
 
-### **POST /payments**
-Cria um novo pagamento para um pedido.  
-Verifica se o pedido está **ABERTO** e se não há outro pagamento ativo.  
-Define o status do pedido como **AGUARDANDO_PAGAMENTO**.
+```bash
+# Cria um novo pagamento para um pedido
+# Verifica se o pedido está ABERTO e se não há outro pagamento ativo
+POST /payments
 
-### **GET /payments**
-Busca todos os pagamentos.
+# Busca todos os pagamentos
+GET /payments
 
-### **GET /payments/:id**
-Busca um pagamento específico por ID.
+# Busca um pagamento específico por ID
+GET /payments/:id
 
-### **PATCH /payments/:id/confirm**
-Rota de simulação/Webhook.  
-Confirma um pagamento **PENDENTE**, dá baixa no estoque e define o pedido como **PAGO**.
+# Confirma um pagamento PENDENTE (Webhook)
+# Dá baixa no estoque e define o pedido como PAGO
+PATCH /payments/:id/confirm
 
-### **PATCH /payments/:id/cancel**
-Cancela um pagamento (se não estiver **PAGO**) e reverte o status do pedido para **ABERTO**.
+# Cancela um pagamento (se não estiver PAGO)
+# Reverte o status do pedido para ABERTO
+PATCH /payments/:id/cancel
+```
 
 ## License
 
