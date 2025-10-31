@@ -1,5 +1,6 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="50" alt="Nest Logo" /></a>
+  <img width="80" height="80" alt="logo-light" src="https://github.com/user-attachments/assets/35b871f1-c5ed-4cf9-8d35-5741997cf787" />
+</a>
 </p>
 
 ## Hypewear-Backend
@@ -8,6 +9,12 @@
 A API utiliza **JWT** para autenticação e **Swagger** para documentação interativa. 
 Você encontra o front-end em: https://github.com/danilo-humberto/hypewear
 
+## Colaboradores
+```
+ # [Danilo Humberto](https://github.com/danilo-humberto)
+ # [Leandro Silva](https://github.com/leandroxzq)
+ # [Juliana Felix](https://github.com/feliixjuliana)
+```
 ## Ferramentas do projeto
 
 ```
@@ -178,6 +185,3 @@ PATCH /payments/:id/confirm
 PATCH /payments/:id/cancel
 ```
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
