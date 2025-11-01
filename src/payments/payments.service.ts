@@ -3,14 +3,14 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreatePaymentDto } from './dto/create-payments.dto';
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreatePaymentDto } from "./dto/create-payments.dto";
 import {
   OrderStatus,
   PaymentStatusType,
   PaymentMethodType,
-} from '@prisma/client';
+} from "@prisma/client";
 
 @Injectable()
 export class PaymentService {
@@ -46,29 +46,27 @@ export class PaymentService {
         throw new NotFoundException(`Pedido com ID ${orderId} não encontrado.`);
       }
 
-      const activePayment = order.payments.find(
-        (p) => p.status !== PaymentStatusType.CANCELADO,
-      );
+      const activePayment =
+        order.payments && order.payments.status !== PaymentStatusType.CANCELADO
+          ? order.payments
+          : null;
 
       if (activePayment) {
         throw new ConflictException(
-          `O Pedido já possui um pagamento ${activePayment.status}.`,
+          `O Pedido já possui um pagamento ${activePayment.status}.`
         );
       }
 
       if (order.status !== OrderStatus.ABERTO) {
         throw new BadRequestException(
-          `Pagamento só pode ser criado para pedidos em status ${OrderStatus.ABERTO}.`,
+          `Pagamento só pode ser criado para pedidos em status ${OrderStatus.ABERTO}.`
         );
       }
-
-      const paymentValue = value || order.total;
 
       const newPayment = await tx.payment.create({
         data: {
           orderId,
           method: method as PaymentMethodType,
-          value: paymentValue,
           status: PaymentStatusType.PENDENTE,
           date: new Date(),
         },
@@ -92,7 +90,7 @@ export class PaymentService {
 
       if (!payment) {
         throw new NotFoundException(
-          `Pagamento com ID ${paymentId} não encontrado.`,
+          `Pagamento com ID ${paymentId} não encontrado.`
         );
       }
 
@@ -108,7 +106,7 @@ export class PaymentService {
           data: {
             estoque: { decrement: item.quantity },
           },
-        }),
+        })
       );
       await Promise.all(stockUpdates);
 
@@ -134,16 +132,16 @@ export class PaymentService {
 
       if (!payment) {
         throw new NotFoundException(
-          `Pagamento com ID ${paymentId} não encontrado.`,
+          `Pagamento com ID ${paymentId} não encontrado.`
         );
       }
       if (payment.status === PaymentStatusType.PAGO) {
         throw new BadRequestException(
-          'Não é possível cancelar um pagamento já efetuado.',
+          "Não é possível cancelar um pagamento já efetuado."
         );
       }
       if (payment.status === PaymentStatusType.CANCELADO) {
-        return payment; 
+        return payment;
       }
 
       await tx.payment.update({
@@ -153,7 +151,7 @@ export class PaymentService {
 
       return tx.order.update({
         where: { id: payment.orderId },
-        data: { status: OrderStatus.ABERTO },
+        data: { status: OrderStatus.CANCELADO },
         include: { payments: true },
       });
     });

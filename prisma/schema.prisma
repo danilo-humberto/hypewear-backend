@@ -62,13 +62,11 @@ model Order {
   id            String         @id @default(uuid())
   clientId      String
   status        OrderStatus @default(ABERTO)
-  subtotal      Float       @default(0)
   total         Float       @default(0)
-  totalQuantity Int         @default(0)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   client        Client      @relation(fields: [clientId], references: [id])
-  payments      Payment[]
+  payments      Payment?    @relation("OrderPayment")
   items         OrderItem[]
 }
 
@@ -77,8 +75,8 @@ model OrderItem {
   orderId   String
   productId String
   quantity  Int
-  price     Float
-  subtotal  Float
+  unitPrice Float
+  total  Float
   order     Order   @relation(fields: [orderId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
 }
@@ -92,11 +90,10 @@ enum OrderStatus {
 
 model Payment {
   id        String              @id @default(uuid())
-  orderId   String              
-  order     Order               @relation(fields: [orderId], references: [id])
+  orderId   String              @unique
+  order     Order               @relation("OrderPayment", fields: [orderId], references: [id])
   method    PaymentMethodType
   status    PaymentStatusType   @default(PENDENTE)
-  value     Float
   date      DateTime            @default(now())
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt

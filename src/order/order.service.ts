@@ -86,8 +86,6 @@ export class OrderService {
           clientId: clientId,
           status: OrderStatus.ABERTO,
           total: totalOrderPrice,
-          subtotal: totalOrderPrice,
-          totalQuantity: totalOrderQuantity,
         },
       });
 
@@ -96,8 +94,8 @@ export class OrderService {
           orderId: order.id,
           productId: item.productId,
           quantity: item.quantity,
-          price: item.price,
-          subtotal: item.price * item.quantity,
+          unitPrice: item.price,
+          total: item.price * item.quantity,
         })),
       });
 
