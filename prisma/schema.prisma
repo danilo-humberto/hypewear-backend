@@ -30,11 +30,17 @@ model Product {
   category    Category    @relation(fields: [categoryId], references: [id])
 }
 
+enum ClientRole {
+  USER
+  ADMIN
+}
+
 model Client {
   id          String    @id @default(uuid())
   name        String
   email       String    @unique
   password    String
+  role        ClientRole @default(USER)
   numberPhone String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
