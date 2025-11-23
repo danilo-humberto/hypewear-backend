@@ -123,7 +123,6 @@ model OrderItem {
   productId String
   quantity  Int
   unitPrice Float  @default(0)
-  total  Float     @default(0)
   order     Order   @relation(fields: [orderId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
 }
