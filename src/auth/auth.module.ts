@@ -11,6 +11,7 @@ import { ClientModule } from "src/client/client.module";
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: "1d" },
     }),
   ],
   controllers: [AuthController],
