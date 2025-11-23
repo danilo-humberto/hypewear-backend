@@ -35,6 +35,7 @@ model Product {
   categoryId  String
   items       OrderItem[]
   category    Category    @relation(fields: [categoryId], references: [id])
+  cartItems  CartItem[]
 
   @@index([categoryId])
   @@index([name])
@@ -56,6 +57,7 @@ model Client {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   addresses   Address[]
+  cart        Cart?
   orders      Order[]
 }
 
@@ -73,6 +75,34 @@ model Address {
   updatedAt   DateTime @updatedAt
   isDefault   Boolean  @default(true)
   client      Client   @relation(fields: [clientId], references: [id])
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  clientId  String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  client    Client     @relation(fields: [clientId], references: [id])
+  items     CartItem[]
+
+  @@index([clientId])
+}
+
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart    @relation(fields: [cartId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([cartId])
+  @@index([productId])
+  @@unique([cartId, productId])
 }
 
 model Order {
