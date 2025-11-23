@@ -1,31 +1,41 @@
-import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { ProductStatus } from "@prisma/client";
+import {
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  Min,
+} from "class-validator";
 
 export class UpdateProductDto {
   @IsString()
   @IsOptional()
-  name: string;
+  name?: string;
 
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
 
   @IsNumber()
   @IsOptional()
-  price: number;
+  price?: number;
 
   @IsInt()
   @IsOptional()
-  estoque: number;
+  @Min(0)
+  estoque?: number;
+
+  @IsEnum(ProductStatus)
+  @IsOptional()
+  status?: ProductStatus;
 
   @IsString()
   @IsOptional()
-  status: string;
+  imagem?: string;
 
   @IsString()
   @IsOptional()
-  imagem: string;
-
-  @IsString()
-  @IsOptional()
-  categoryId: string;
+  categoryId?: string;
 }

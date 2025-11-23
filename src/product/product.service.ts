@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class ProductService {
@@ -14,9 +14,19 @@ export class ProductService {
       },
     });
 
-    if (!category) throw new NotFoundException('Categoria não encontrada');
+    if (!category) throw new NotFoundException("Categoria não encontrada");
 
-    return this.prisma.product.create({ data: dto });
+    return this.prisma.product.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+        price: dto.price,
+        estoque: dto.estoque,
+        status: dto.status,
+        imagem: dto.imagem,
+        categoryId: dto.categoryId,
+      },
+    });
   }
 
   findAll(filtros: {
@@ -28,11 +38,13 @@ export class ProductService {
     const where: any = {};
 
     if (filtros.name) {
-      where.name = { contains: filtros.name };
+      where.name = { contains: filtros.name, mode: "insensitive" };
     }
 
     if (filtros.nameCategory) {
-      where.category = { name: filtros.nameCategory };
+      where.category = {
+        name: { equals: filtros.nameCategory, mode: "insensitive" },
+      };
     }
 
     if (filtros.precoMin || filtros.precoMax) {
@@ -63,7 +75,7 @@ export class ProductService {
       },
     });
 
-    if (!product) throw new NotFoundException('Produto nao encontrado');
+    if (!product) throw new NotFoundException("Produto nao encontrado");
 
     return product;
   }
