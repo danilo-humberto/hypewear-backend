@@ -79,6 +79,17 @@ export class OrderService {
         })),
       });
 
+      for (const item of orderItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            reserverd: {
+              increment: item.quantity,
+            },
+          },
+        });
+      }
+
       const cart = await tx.cart.findUnique({ where: { clientId } });
       if (cart) {
         await tx.cartItem.deleteMany({ where: { cartId: cart.id } });

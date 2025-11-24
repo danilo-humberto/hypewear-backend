@@ -28,6 +28,7 @@ model Product {
   description String
   price       Float
   estoque     Int
+  reserverd   Int      @default(0)
   status      ProductStatus @default(ATIVO)
   imagem      String
   createdAt   DateTime    @default(now())

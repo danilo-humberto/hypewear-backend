@@ -57,8 +57,9 @@ export class CartService {
       if (!product) throw new NotFoundException("Produto não encontrado");
       if (product.status !== "ATIVO")
         throw new BadRequestException("Produto não está disponível");
-      if (product.estoque <= 0)
-        throw new BadRequestException("Produto sem estoque");
+
+      const available = product.estoque - product.reserverd;
+      if (available <= 0) throw new BadRequestException("Produto sem estoque");
 
       const existing = await prisma.cartItem.findUnique({
         where: { cartId_productId: { cartId: cart.id, productId } },
@@ -66,7 +67,7 @@ export class CartService {
 
       const newQuantity = (existing ? existing.quantity : 0) + quantity;
 
-      if (newQuantity > product.estoque) {
+      if (newQuantity > available) {
         throw new BadRequestException(
           "Quantidade solicitada maior que o estoque disponível"
         );
@@ -119,7 +120,10 @@ export class CartService {
       const product = item.product;
       if (!product)
         throw new NotFoundException("Produto vinculado não encontrado");
-      if (quantity > product.estoque)
+
+      const available = product.estoque - product.reserverd;
+      if (available <= 0) throw new BadRequestException("Produto sem estoque");
+      if (quantity > available)
         throw new BadRequestException(
           "Quantidade solicitada maior que estoque disponível"
         );
@@ -168,7 +172,13 @@ export class CartService {
         throw new BadRequestException(
           `Produto ${it.product.name} não está disponível`
         );
-      if (it.quantity > it.product.estoque)
+
+      const available = it.product.estoque - it.product.reserverd;
+      if (available <= 0)
+        throw new BadRequestException(
+          `Produto ${it.product.name} sem estoque suficiente`
+        );
+      if (it.quantity > available)
         throw new BadRequestException(
           `Produto ${it.product.name} sem estoque suficiente`
         );
