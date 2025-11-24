@@ -34,10 +34,10 @@ export class CartService {
     return { ...cart, subtotal };
   }
 
-  private async ensureCart(clientId: string) {
-    let cart = await this.prisma.cart.findUnique({ where: { clientId } });
+  private async ensureCart(clientId: string, prisma: any = this.prisma) {
+    let cart = await prisma.cart.findUnique({ where: { clientId } });
     if (!cart) {
-      cart = await this.prisma.cart.create({
+      cart = await prisma.cart.create({
         data: { clientId },
       });
     }
@@ -46,12 +46,10 @@ export class CartService {
 
   async addItem(clientId: string, productId: string, quantity = 1) {
     if (quantity <= 0)
-      throw new BadRequestException("Quantity must be greater than 0");
+      throw new BadRequestException("Quantidade precisa ser > 0");
 
     return this.prisma.$transaction(async (prisma) => {
-      const cart =
-        (await prisma.cart.findUnique({ where: { clientId } })) ??
-        (await prisma.cart.create({ data: { clientId } }));
+      const cart = await this.ensureCart(clientId, prisma);
 
       const product = await prisma.product.findUnique({
         where: { id: productId },
@@ -180,10 +178,15 @@ export class CartService {
       productId: it.productId,
       quantity: it.quantity,
       unitPrice: it.product.price,
-      total: it.product.price * it.quantity,
     }));
 
-    const subtotal = orderItems.reduce((acc, it) => acc + it.total, 0);
+    const subtotal = cart.items.reduce((acc, it) => {
+      const price =
+        it.product && typeof it.product.price === "number"
+          ? it.product.price
+          : 0;
+      return acc + price * it.quantity;
+    }, 0);
 
     return { orderItems, subtotal };
   }
