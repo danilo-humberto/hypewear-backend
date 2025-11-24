@@ -65,7 +65,7 @@ export class OrderService {
       const order = await tx.order.create({
         data: {
           clientId,
-          status: OrderStatus.AGUARDANDO_PAGAMENTO,
+          status: OrderStatus.ABERTO,
           total: subtotal,
         },
       });

@@ -1,39 +1,23 @@
-import { 
-    IsNotEmpty, IsIn, IsString, IsOptional, IsNumber, IsPositive 
-} from "class-validator";
-import { ApiProperty } from '@nestjs/swagger'; 
-
-export type PaymentMethod = 'CARTAO' | 'BOLETO' | 'PIX';
+import { IsNotEmpty, IsIn, IsString } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { PaymentMethodType } from "@prisma/client";
 
 export class CreatePaymentDto {
-
   @ApiProperty({
-    description: 'ID do pedido a ser pago.',
-    example: 550,
-    type: String
+    description: "ID do pedido a ser pago.",
+    example: "7e3b5a1f-4d2c-4e8a-8b1e-9c0d5f6a2b8c",
+    type: String,
   })
+  @IsString()
   @IsNotEmpty()
   orderId: string;
 
   @ApiProperty({
-    description: 'Método de pagamento.',
-    example: 'CARTAO',
-    enum: ['CARTAO', 'BOLETO', 'PIX']
+    description: "Método de pagamento.",
+    example: "CARTAO",
+    enum: PaymentMethodType,
   })
   @IsString()
-  @IsNotEmpty()
-  @IsIn(['CARTAO', 'BOLETO', 'PIX']) 
-  method: PaymentMethod
-
-  @ApiProperty({
-    description: 'Valor do pagamento. Opcional, o valor do pedido será usado se não for fornecido.',
-    example: 150.75,
-    type: Number,
-    required: false
-  })
-  @IsNumber()
-  @IsPositive()
-  @IsOptional()
-  value?: number;
-    
+  @IsIn(["CARTAO", "BOLETO", "PIX"])
+  method: PaymentMethodType;
 }

@@ -34,7 +34,7 @@ export class PaymentService {
   }
 
   async createPayment(createPaymentDto: CreatePaymentDto) {
-    const { orderId, method, value } = createPaymentDto;
+    const { orderId, method } = createPaymentDto;
 
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({
@@ -46,20 +46,20 @@ export class PaymentService {
         throw new NotFoundException(`Pedido com ID ${orderId} não encontrado.`);
       }
 
-      const activePayment =
-        order.payments && order.payments.status !== PaymentStatusType.CANCELADO
-          ? order.payments
-          : null;
+      const existingPayment = order.payments;
 
-      if (activePayment) {
+      if (
+        existingPayment &&
+        existingPayment.status !== PaymentStatusType.CANCELADO
+      ) {
         throw new ConflictException(
-          `O Pedido já possui um pagamento ${activePayment.status}.`
+          `Já existe um pagamento associado com status ${existingPayment.status} ao pedido com ID ${orderId}.`
         );
       }
 
       if (order.status !== OrderStatus.ABERTO) {
         throw new BadRequestException(
-          `Pagamento só pode ser criado para pedidos em status ${OrderStatus.ABERTO}.`
+          `Não é possível criar um pagamento para um pedido com status ${order.status}.`
         );
       }
 
@@ -85,7 +85,9 @@ export class PaymentService {
     return this.prisma.$transaction(async (tx) => {
       const payment = await tx.payment.findUnique({
         where: { id: paymentId },
-        include: { order: { include: { items: true } } },
+        include: {
+          order: { include: { items: { include: { product: true } } } },
+        },
       });
 
       if (!payment) {
@@ -96,19 +98,47 @@ export class PaymentService {
 
       const order = payment.order;
 
+      if (!order)
+        throw new NotFoundException(
+          `Pedido associado ao pagamento ${paymentId} não encontrado.`
+        );
+
       if (payment.status !== PaymentStatusType.PENDENTE) {
         throw new BadRequestException(`Pagamento já está ${payment.status}.`);
       }
 
-      const stockUpdates = order.items.map((item) =>
-        tx.product.update({
-          where: { id: item.productId },
+      if (order.status !== OrderStatus.AGUARDANDO_PAGAMENTO) {
+        throw new BadRequestException(
+          `Não é possível confirmar pagamento de pedido em status ${order.status}.`
+        );
+      }
+
+      for (const item of order.items) {
+        const product = item.product;
+        if (!product) {
+          throw new NotFoundException(
+            `Produto ${item.productId} associado ao pedido ${order.id} nao encontrado.`
+          );
+        }
+
+        if (product.reserverd < item.quantity) {
+          throw new ConflictException(
+            `Reserva insuficiente para o produto ${product.name}.`
+          );
+        }
+
+        await tx.product.update({
+          where: { id: product.id },
           data: {
-            estoque: { decrement: item.quantity },
+            estoque: {
+              decrement: item.quantity,
+            },
+            reserverd: {
+              decrement: item.quantity,
+            },
           },
-        })
-      );
-      await Promise.all(stockUpdates);
+        });
+      }
 
       await tx.payment.update({
         where: { id: paymentId },
@@ -118,7 +148,10 @@ export class PaymentService {
       return tx.order.update({
         where: { id: order.id },
         data: { status: OrderStatus.PAGO },
-        include: { payments: true },
+        include: {
+          payments: true,
+          items: { include: { product: true } },
+        },
       });
     });
   }
@@ -127,7 +160,9 @@ export class PaymentService {
     return this.prisma.$transaction(async (tx) => {
       const payment = await tx.payment.findUnique({
         where: { id: paymentId },
-        include: { order: true },
+        include: {
+          order: { include: { items: { include: { product: true } } } },
+        },
       });
 
       if (!payment) {
@@ -135,6 +170,14 @@ export class PaymentService {
           `Pagamento com ID ${paymentId} não encontrado.`
         );
       }
+
+      const order = payment.order;
+
+      if (!order)
+        throw new NotFoundException(
+          `Pedido associado ao pagamento ${paymentId} nao encontrado.`
+        );
+
       if (payment.status === PaymentStatusType.PAGO) {
         throw new BadRequestException(
           "Não é possível cancelar um pagamento já efetuado."
@@ -144,15 +187,52 @@ export class PaymentService {
         return payment;
       }
 
+      if (payment.order.status !== OrderStatus.AGUARDANDO_PAGAMENTO) {
+        throw new BadRequestException(
+          `Não é possível cancelar pagamento de pedido em status ${payment.order.status}.`
+        );
+      }
+
+      for (const item of payment.order.items) {
+        const product = item.product;
+        if (!product) {
+          throw new NotFoundException(
+            `Produto ${item.productId} associado ao pedido ${payment.order.id} nao encontrado.`
+          );
+        }
+
+        if (product.reserverd < item.quantity) {
+          throw new ConflictException(
+            `Reserva insuficiente para o produto ${product.name}.`
+          );
+        }
+
+        await tx.product.update({
+          where: { id: product.id },
+          data: {
+            reserverd: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      }
+
       await tx.payment.update({
         where: { id: paymentId },
         data: { status: PaymentStatusType.CANCELADO },
       });
 
       return tx.order.update({
-        where: { id: payment.orderId },
-        data: { status: OrderStatus.CANCELADO },
-        include: { payments: true },
+        where: { id: order.id },
+        data: { status: OrderStatus.ABERTO },
+        include: {
+          payments: true,
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
       });
     });
   }
