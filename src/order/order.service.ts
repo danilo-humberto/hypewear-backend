@@ -65,7 +65,7 @@ export class OrderService {
       const order = await tx.order.create({
         data: {
           clientId,
-          status: OrderStatus.ABERTO,
+          status: OrderStatus.AGUARDANDO_PAGAMENTO,
           total: subtotal,
         },
       });
@@ -78,17 +78,6 @@ export class OrderService {
           unitPrice: item.unitPrice,
         })),
       });
-
-      for (const item of orderItems) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            estoque: {
-              decrement: item.quantity,
-            },
-          },
-        });
-      }
 
       const cart = await tx.cart.findUnique({ where: { clientId } });
       if (cart) {
