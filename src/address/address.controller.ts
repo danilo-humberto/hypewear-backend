@@ -6,47 +6,88 @@ import {
   Param,
   Patch,
   Post,
-} from '@nestjs/common';
-import { CreateAddressDto } from './dto/create-address.dto';
-import { UpdateAddressDto } from './dto/update-address.dto';
-import { AddressService } from './address.service';
+} from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { CreateAddressDto } from "./dto/create-address.dto";
+import { UpdateAddressDto } from "./dto/update-address.dto";
+import { AddressService } from "./address.service";
 
-@Controller('addresss')
+@ApiTags("Addresses")
+@Controller("addresss")
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   @Post()
+  @ApiOperation({ summary: "Criar um novo endereço" })
+  @ApiResponse({
+    status: 201,
+    description: "Endereço criado com sucesso.",
+  })
   create(@Body() createAddressDto: CreateAddressDto) {
     return this.addressService.create(createAddressDto);
   }
 
   @Get()
+  @ApiOperation({ summary: "Listar todos os endereços" })
+  @ApiResponse({
+    status: 200,
+    description: "Lista de endereços retornada com sucesso.",
+  })
   findAll() {
     return this.addressService.findAll();
   }
 
-  @Get('client/:id')
-  findByClient(@Param('id') id: string) {
+  @Get("client/:id")
+  @ApiOperation({ summary: "Listar endereços de um cliente específico" })
+  @ApiResponse({
+    status: 200,
+    description: "Endereços do cliente retornados com sucesso.",
+  })
+  findByClient(@Param("id") id: string) {
     return this.addressService.findByClient(id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  @ApiOperation({ summary: "Buscar um endereço pelo ID" })
+  @ApiResponse({
+    status: 200,
+    description: "Endereço encontrado com sucesso.",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Endereço não encontrado.",
+  })
+  findOne(@Param("id") id: string) {
     return this.addressService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAddressDto: UpdateAddressDto) {
+  @Patch(":id")
+  @ApiOperation({ summary: "Atualizar um endereço existente" })
+  @ApiResponse({
+    status: 200,
+    description: "Endereço atualizado com sucesso.",
+  })
+  update(@Param("id") id: string, @Body() updateAddressDto: UpdateAddressDto) {
     return this.addressService.update(id, updateAddressDto);
   }
 
-  @Patch(':id/default')
-  putDefault(@Param('id') id: string) {
+  @Patch(":id/default")
+  @ApiOperation({ summary: "Definir um endereço como padrão" })
+  @ApiResponse({
+    status: 200,
+    description: "Endereço definido como padrão com sucesso.",
+  })
+  putDefault(@Param("id") id: string) {
     return this.addressService.putDefault(id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(":id")
+  @ApiOperation({ summary: "Remover um endereço" })
+  @ApiResponse({
+    status: 200,
+    description: "Endereço removido com sucesso.",
+  })
+  remove(@Param("id") id: string) {
     return this.addressService.remove(id);
   }
 }
