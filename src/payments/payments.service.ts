@@ -224,7 +224,7 @@ export class PaymentService {
 
       return tx.order.update({
         where: { id: order.id },
-        data: { status: OrderStatus.ABERTO },
+        data: { status: OrderStatus.CANCELADO },
         include: {
           payments: true,
           items: {
