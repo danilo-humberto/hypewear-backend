@@ -36,6 +36,8 @@ export class ClientController {
     return this.clientService.create(createClientDto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
   @Get()
   @ApiOperation({ summary: "Listar todos os clientes" })
   @ApiResponse({
