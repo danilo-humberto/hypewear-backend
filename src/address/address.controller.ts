@@ -16,7 +16,7 @@ import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 
 @UseGuards(JwtAuthGuard)
 @ApiTags("Addresses")
-@Controller("addresss")
+@Controller("address")
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
