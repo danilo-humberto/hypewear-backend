@@ -10,6 +10,15 @@ async function bootstrap() {
     .setTitle("Hypewear API")
     .setDescription("Endpoints da API do E-commerce HypeWear")
     .setVersion("1.0")
+    .addBearerAuth(
+      {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        description: "Insira o token JWT gerado no login",
+      },
+      "access-token"
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, documentFactory);
