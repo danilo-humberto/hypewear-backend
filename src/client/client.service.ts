@@ -32,6 +32,17 @@ export class ClientService {
     });
   }
 
+  async findMe(userId: string) {
+    return this.prisma.client.findUnique({
+      where: { id: userId },
+      include: {
+        addresses: true,
+        cart: true,
+        orders: true,
+      },
+    });
+  }
+
   findAll() {
     return this.prisma.client.findMany({
       select: {

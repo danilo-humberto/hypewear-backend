@@ -20,6 +20,7 @@ import { ClientService } from "./client.service";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
 import { RolesGuard } from "src/auth/roles.guard";
 import { Roles } from "src/auth/roles.decorator";
+import { GetUser } from "src/auth/get-user.decorator";
 
 @ApiTags("Clients")
 @Controller("clients")
@@ -34,6 +35,30 @@ export class ClientController {
   })
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientService.create(createClientDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth("access-token")
+  @Get("me")
+  @ApiOperation({ summary: "Retorna os dados do usuário logado" })
+  @ApiResponse({
+    status: 200,
+    description: "Dados do usuário logado",
+  })
+  findMe(@GetUser() user) {
+    return this.clientService.findMe(user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth("access-token")
+  @Patch("me")
+  @ApiOperation({ summary: "Atualiza os dados do usuário logado" })
+  @ApiResponse({
+    status: 200,
+    description: "Dados atualizados com sucesso",
+  })
+  updateMe(@GetUser() user, @Body() updateClientDto: UpdateClientDto) {
+    return this.clientService.update(user.id, updateClientDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
