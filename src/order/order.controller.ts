@@ -41,7 +41,7 @@ export class OrderController {
     return this.orderService.findByClient(clientId);
   }
 
-  @Roles("ADMIN")
+  @Roles("ADMIN", "USER")
   @Get(":id")
   @ApiOperation({ summary: "Buscar um pedido pelo ID" })
   @ApiResponse({ status: 200, description: "Pedido encontrado." })

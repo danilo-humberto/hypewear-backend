@@ -24,7 +24,11 @@ export class OrderService {
   async findOne(id: string) {
     const order = await this.prisma.order.findUnique({
       where: { id },
-      include: { items: { include: { product: true } }, client: true },
+      include: {
+        items: { include: { product: true } },
+        client: true,
+        payments: true,
+      },
     });
     if (!order) {
       throw new NotFoundException(`Pedido com ID ${id} não encontrado.`);
@@ -97,7 +101,11 @@ export class OrderService {
 
       return tx.order.findUnique({
         where: { id: order.id },
-        include: { items: { include: { product: true } }, client: true },
+        include: {
+          items: { include: { product: true } },
+          client: true,
+          payments: true,
+        },
       });
     });
   }
