@@ -38,7 +38,7 @@ export class PaymentController {
 
   @Patch(":id/confirm")
   @HttpCode(HttpStatus.OK)
-  @Roles("ADMIN")
+  @Roles("ADMIN", "USER")
   @ApiOperation({ summary: "Confirmar um pagamento pendente" })
   @ApiResponse({
     status: 200,
