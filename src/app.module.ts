@@ -9,6 +9,7 @@ import { PaymentModule } from "./payments/payments.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ProductModule } from "./product/product.module";
 import { ScheduleModule } from "@nestjs/schedule";
+import { AppController } from "./app.controller";
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { ScheduleModule } from "@nestjs/schedule";
     PaymentModule,
     ScheduleModule.forRoot(),
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
