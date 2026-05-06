@@ -4,46 +4,36 @@ on:
   push:
     branches:
       - main
-      - develop
   pull_request:
     branches:
       - main
-      - develop
 
 jobs:
-  test-and-build:
+  test:
     runs-on: ubuntu-latest
+
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hypewear_test
       JWT_SECRET: ci-test-secret
 
-    defaults:
-      run:
-        working-directory: .
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.18.2
-
-      - name: Setup Node.js
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: pnpm
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Generate Prisma client
-        run: pnpm exec prisma generate
+        run: npx prisma generate
 
-      - name: Run unit tests
-        run: pnpm test
+      - name: Run tests
+        run: npm test
 
       - name: Build project
-        run: pnpm build
+        run: npm run build
