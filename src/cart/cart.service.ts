@@ -3,7 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
+
+type CartPrismaClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class CartService {
@@ -34,7 +37,10 @@ export class CartService {
     return { ...cart, subtotal };
   }
 
-  private async ensureCart(clientId: string, prisma: any = this.prisma) {
+  private async ensureCart(
+    clientId: string,
+    prisma: CartPrismaClient = this.prisma
+  ) {
     let cart = await prisma.cart.findUnique({ where: { clientId } });
     if (!cart) {
       cart = await prisma.cart.create({

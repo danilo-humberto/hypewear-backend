@@ -25,7 +25,7 @@ export class AuthService {
     );
     if (!isValid) throw new UnauthorizedException("Credenciais inválidas");
 
-    const { password: _, ...result } = user;
+    const { password: _password, ...result } = user;
     return result;
   }
 
@@ -52,7 +52,7 @@ export class AuthService {
     if (hasUser) throw new BadRequestException("Email já cadastrado");
 
     const client = await this.clientService.create(dto);
-    const { password, ...result } = client;
+    const { password: _password, ...result } = client;
     const payload = { email: client.email, sub: client.id, role: result.role };
     return {
       access_token: this.jwtService.sign(payload),

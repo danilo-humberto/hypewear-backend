@@ -23,6 +23,12 @@ import { Request } from "express";
 import { AddCartItemDto } from "./dto/add-cart.dto";
 import { UpdateCartItemDto } from "./dto/update-cart.dto";
 
+type AuthenticatedRequest = Request & {
+  user: {
+    id: string;
+  };
+};
+
 @ApiTags("Cart")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -36,8 +42,8 @@ export class CartController {
     status: 200,
     description: "Carrinho retornado com sucesso.",
   })
-  async getCart(@Req() req: Request) {
-    const clientId = (req.user as any).id;
+  async getCart(@Req() req: AuthenticatedRequest) {
+    const clientId = req.user.id;
     const cart = await this.cartService.getCartByClient(clientId);
     if (!cart) return { items: [], subtotal: 0 };
     return cart;
@@ -50,10 +56,10 @@ export class CartController {
     description: "Item adicionado ou atualizado no carrinho com sucesso.",
   })
   async addItem(
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
     @Body(new ValidationPipe({ whitelist: true })) dto: AddCartItemDto
   ) {
-    const clientId = (req.user as any).id;
+    const clientId = req.user.id;
     const createdOrUpdated = await this.cartService.addItem(
       clientId,
       dto.productId,
@@ -69,10 +75,10 @@ export class CartController {
     description: "Item do carrinho atualizado ou removido com sucesso.",
   })
   async updateItem(
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
     @Body(new ValidationPipe({ whitelist: true })) dto: UpdateCartItemDto
   ) {
-    const clientId = (req.user as any).id;
+    const clientId = req.user.id;
     if (dto.quantity === undefined) {
       const result = await this.cartService.updateItemQuantity(
         clientId,
@@ -96,10 +102,10 @@ export class CartController {
     description: "Item removido do carrinho com sucesso.",
   })
   async removeItem(
-    @Req() req: Request,
+    @Req() req: AuthenticatedRequest,
     @Param("productId", new ParseUUIDPipe()) productId: string
   ) {
-    const clientId = (req.user as any).id;
+    const clientId = req.user.id;
     return this.cartService.removeItem(clientId, productId);
   }
 
@@ -109,8 +115,8 @@ export class CartController {
     status: 200,
     description: "Carrinho limpo com sucesso.",
   })
-  async clearCart(@Req() req: Request) {
-    const clientId = (req.user as any).id;
+  async clearCart(@Req() req: AuthenticatedRequest) {
+    const clientId = req.user.id;
     return this.cartService.clearCart(clientId);
   }
 
@@ -124,8 +130,8 @@ export class CartController {
     status: 200,
     description: "Resumo do pedido preparado com sucesso.",
   })
-  async prepareOrder(@Req() req: Request) {
-    const clientId = (req.user as any).id;
+  async prepareOrder(@Req() req: AuthenticatedRequest) {
+    const clientId = req.user.id;
     return this.cartService.prepareOrderFromCart(clientId);
   }
 }

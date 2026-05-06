@@ -6,7 +6,11 @@ import {
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
-import { OrderStatus, PaymentStatusType } from '@prisma/client';
+import {
+  OrderStatus,
+  PaymentMethodType,
+  PaymentStatusType,
+} from '@prisma/client';
 import {
   mockPrismaService,
   mockOrder,
@@ -36,7 +40,7 @@ describe('PaymentService - Criar Pagamento', () => {
 
   const createDto = {
     orderId: mockOrder.id,
-    method: 'PIX' as any,
+    method: PaymentMethodType.PIX,
     value: 100.0,
   };
 
