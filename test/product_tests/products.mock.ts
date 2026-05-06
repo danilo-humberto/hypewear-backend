@@ -1,3 +1,5 @@
+import { ProductStatus } from '@prisma/client';
+
 export const mockPrismaService = {
   product: {
     create: jest.fn(),
@@ -22,7 +24,7 @@ export const mockProduct = {
   description: 'Camisa polo de algodão com malha piquet',
   price: 79.9,
   estoque: 50,
-  status: 'Disponível',
+  status: ProductStatus.ATIVO,
   imagem: 'http://image.url/camisa-polo.png',
   categoryId: mockCategory.id,
   category: mockCategory,
@@ -33,7 +35,7 @@ export const mockCreateProductDto = {
   description: 'Camisa polo de algodão com malha piquet',
   price: 79.9,
   estoque: 50,
-  status: 'Disponível',
+  status: ProductStatus.ATIVO,
   imagem: 'http://image.url/camisa-polo.png',
   categoryId: mockCategory.id,
 };

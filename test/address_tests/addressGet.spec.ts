@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AddressService } from '../address.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { AddressService } from '../../src/address/address.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
 import { mockPrismaService, mockAddress } from './address.mock';
 

@@ -1,4 +1,4 @@
-import { CreateClientDto } from '../dto/create-client.dto';
+import { CreateClientDto } from '../../src/client/dto/create-client.dto';
 
 export const mockPrismaService = {
   client: {

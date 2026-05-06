@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductService } from '../product.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { ProductService } from '../../src/product/product.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import {
   mockPrismaService,
   mockProduct,
@@ -65,7 +65,7 @@ describe('ProductService', () => {
       await service.findAll(filtros);
 
       expect(prisma.product.findMany).toHaveBeenCalledWith({
-        where: { name: { contains: filtros.name } },
+        where: { name: { contains: filtros.name, mode: 'insensitive' } },
         include: { category: true },
       });
     });
@@ -83,8 +83,10 @@ describe('ProductService', () => {
 
       expect(prisma.product.findMany).toHaveBeenCalledWith({
         where: {
-          name: { contains: filtros.name },
-          category: { name: filtros.nameCategory },
+          name: { contains: filtros.name, mode: 'insensitive' },
+          category: {
+            name: { equals: filtros.nameCategory, mode: 'insensitive' },
+          },
           price: { gte: 70, lte: 80 },
         },
         include: { category: true },

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductService } from '../product.service';
-import { PrismaService } from '../../prisma/prisma.service';
-import { UpdateProductDto } from '../dto/update-product.dto';
+import { ProductService } from '../../src/product/product.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
+import { UpdateProductDto } from '../../src/product/dto/update-product.dto';
 import {
   mockPrismaService,
   mockCategory,
@@ -46,7 +46,15 @@ describe('ProductService - Criar/Atualizar', () => {
         where: { id: mockCreateProductDto.categoryId },
       });
       expect(prisma.product.create).toHaveBeenCalledWith({
-        data: mockCreateProductDto,
+        data: {
+          name: mockCreateProductDto.name,
+          description: mockCreateProductDto.description,
+          price: mockCreateProductDto.price,
+          estoque: mockCreateProductDto.estoque,
+          status: mockCreateProductDto.status,
+          imagem: mockCreateProductDto.imagem,
+          categoryId: mockCreateProductDto.categoryId,
+        },
       });
     });
 
