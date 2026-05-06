@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PaymentService } from '../payments.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PaymentService } from '../../src/payments/payments.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import {
   NotFoundException,
   ConflictException,
@@ -70,7 +70,7 @@ describe('PaymentService - Criar Pagamento', () => {
   it('deve lançar um erro (ConflictException) se já existir um pagamento ativo (pendente)', async () => {
     const orderWithActivePayment = {
       ...mockOrder,
-      payments: [{ status: PaymentStatusType.PENDENTE }],
+      payments: { status: PaymentStatusType.PENDENTE },
     };
     mockPrismaService.order.findUnique.mockResolvedValue(
       orderWithActivePayment,

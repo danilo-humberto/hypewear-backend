@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ClientService } from '../client.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { ClientService } from '../../src/client/client.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
 import { mockPrismaService, mockClient } from './client.mock';
 import * as bcrypt from 'bcrypt';
@@ -48,6 +48,7 @@ describe('ClientService - Buscas/Comparações', () => {
           name: true,
           email: true,
           numberPhone: true,
+          role: true,
           createdAt: true,
         },
       });
@@ -63,6 +64,14 @@ describe('ClientService - Buscas/Comparações', () => {
       expect(result).toEqual(mockClient);
       expect(prisma.client.findUnique).toHaveBeenCalledWith({
         where: { id: mockClient.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          numberPhone: true,
+          role: true,
+          createdAt: true,
+        },
       });
     });
 
@@ -84,6 +93,13 @@ describe('ClientService - Buscas/Comparações', () => {
       expect(result).toEqual(mockClient);
       expect(prisma.client.findUnique).toHaveBeenCalledWith({
         where: { email: mockClient.email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          password: true,
+          role: true,
+        },
       });
     });
 

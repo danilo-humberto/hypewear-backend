@@ -1,13 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrderService } from '../order.service';
-import { PrismaService } from '../../prisma/prisma.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
+import { CartService } from '../../src/cart/cart.service';
+import { OrderService } from '../../src/order/order.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import {
   mockPrismaService,
+  mockCartService,
   mockClient,
-  mockProduct,
   mockCreateOrderDto,
+  mockOrderItems,
   mockOrder,
 } from './order.mock';
 
@@ -22,6 +24,10 @@ describe('OrderService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: CartService,
+          useValue: mockCartService,
         },
       ],
     }).compile();
@@ -38,17 +44,21 @@ describe('OrderService', () => {
 
   it('deve criar um pedido com sucesso', async () => {
     mockPrismaService.client.findUnique.mockResolvedValue(mockClient);
-    mockPrismaService.product.findUnique.mockResolvedValue(mockProduct);
+    mockCartService.prepareOrderFromCart.mockResolvedValue({
+      orderItems: mockOrderItems,
+      subtotal: 20.0,
+    });
     mockPrismaService.order.create.mockResolvedValue(mockOrder);
     mockPrismaService.orderItem.createMany.mockResolvedValue({ count: 1 });
+    mockPrismaService.product.update.mockResolvedValue({});
+    mockPrismaService.cart.findUnique.mockResolvedValue(null);
     mockPrismaService.order.findUnique.mockResolvedValue({
       ...mockOrder,
       items: [
         {
-          productId: mockProduct.id,
-          quantity: 2,
-          price: mockProduct.price,
-          subtotal: 20.0,
+          productId: mockOrderItems[0].productId,
+          quantity: mockOrderItems[0].quantity,
+          unitPrice: mockOrderItems[0].unitPrice,
         },
       ],
     });
@@ -59,26 +69,35 @@ describe('OrderService', () => {
     expect(prisma.client.findUnique).toHaveBeenCalledWith({
       where: { id: mockCreateOrderDto.clientId },
     });
-    expect(prisma.product.findUnique).toHaveBeenCalledWith({
-      where: { id: mockProduct.id },
-    });
+    expect(mockCartService.prepareOrderFromCart).toHaveBeenCalledWith(
+      mockCreateOrderDto.clientId,
+    );
     expect(prisma.order.create).toHaveBeenCalledWith({
       data: {
         clientId: mockCreateOrderDto.clientId,
         status: OrderStatus.ABERTO,
         total: 20.0,
-        subtotal: 20.0,
-        totalQuantity: 2,
       },
     });
-    expect(prisma.orderItem.createMany).toHaveBeenCalled();
+    expect(prisma.orderItem.createMany).toHaveBeenCalledWith({
+      data: mockOrderItems.map((item) => ({
+        orderId: mockOrder.id,
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+    });
     expect(prisma.order.findUnique).toHaveBeenCalledWith({
       where: { id: mockOrder.id },
-      include: { items: true },
+      include: {
+        items: { include: { product: true } },
+        client: true,
+        payments: true,
+      },
     });
   });
 
-  it('deve lançar um erro (NotFoundException) se o cliente não for encontrado', async () => {
+  it('deve lancar um erro (NotFoundException) se o cliente nao for encontrado', async () => {
     mockPrismaService.client.findUnique.mockResolvedValue(null);
 
     await expect(service.create(mockCreateOrderDto)).rejects.toThrow(
@@ -87,27 +106,14 @@ describe('OrderService', () => {
     expect(prisma.order.create).not.toHaveBeenCalled();
   });
 
-  it('deve lançar um erro (NotFoundException) se um produto não for encontrado', async () => {
+  it('deve lancar um erro (BadRequestException) se o carrinho estiver vazio', async () => {
     mockPrismaService.client.findUnique.mockResolvedValue(mockClient);
-    mockPrismaService.product.findUnique.mockResolvedValue(null);
+    mockCartService.prepareOrderFromCart.mockResolvedValue({
+      orderItems: [],
+      subtotal: 0,
+    });
 
     await expect(service.create(mockCreateOrderDto)).rejects.toThrow(
-      NotFoundException,
-    );
-    expect(prisma.order.create).not.toHaveBeenCalled();
-  });
-
-  it('deve lançar um erro (BadRequestException) se o estoque for insuficiente', async () => {
-    const productOutOfStock = { ...mockProduct, estoque: 1 };
-    const dtoWithMoreQuantity = {
-      ...mockCreateOrderDto,
-      items: [{ productId: mockProduct.id, quantity: 5 }],
-    };
-
-    mockPrismaService.client.findUnique.mockResolvedValue(mockClient);
-    mockPrismaService.product.findUnique.mockResolvedValue(productOutOfStock);
-
-    await expect(service.create(dtoWithMoreQuantity)).rejects.toThrow(
       BadRequestException,
     );
     expect(prisma.order.create).not.toHaveBeenCalled();

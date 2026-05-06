@@ -1,4 +1,4 @@
-import { CreateAddressDto } from '../dto/create-address.dto';
+import { CreateAddressDto } from '../../src/address/dto/create-address.dto';
 
 export const mockPrismaService = {
   address: {

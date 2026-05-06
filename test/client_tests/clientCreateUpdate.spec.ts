@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ClientService } from '../client.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { ClientService } from '../../src/client/client.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { UpdateClientDto } from '../dto/update-client.dto';
+import { UpdateClientDto } from '../../src/client/dto/update-client.dto';
 import {
   mockPrismaService,
   mockClient,
@@ -51,6 +51,7 @@ describe('ClientService', () => {
         data: {
           ...mockCreateClientDto,
           password: 'hashed-password-abc',
+          role: 'USER',
         },
       });
     });

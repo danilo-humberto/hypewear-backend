@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrderService } from '../order.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { OrderService } from '../../src/order/order.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
+import { CartService } from '../../src/cart/cart.service';
 import { NotFoundException } from '@nestjs/common';
-import { mockPrismaService, mockOrder } from './order.mock';
+import { mockCartService, mockPrismaService, mockOrder } from './order.mock';
 
 describe('OrderService - Buscas (Get)', () => {
   let service: OrderService;
@@ -15,6 +16,10 @@ describe('OrderService - Buscas (Get)', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: CartService,
+          useValue: mockCartService,
         },
       ],
     }).compile();
@@ -51,7 +56,11 @@ describe('OrderService - Buscas (Get)', () => {
       expect(result).toEqual(mockOrder);
       expect(prisma.order.findUnique).toHaveBeenCalledWith({
         where: { id: mockOrder.id },
-        include: { items: { include: { product: true } }, client: true },
+        include: {
+          items: { include: { product: true } },
+          client: true,
+          payments: true,
+        },
       });
     });
 
