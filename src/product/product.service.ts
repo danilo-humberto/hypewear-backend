@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { PrismaService } from "../prisma/prisma.service";
@@ -35,7 +36,7 @@ export class ProductService {
     precoMin?: number;
     precoMax?: number;
   }) {
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
 
     if (filtros.name) {
       where.name = { contains: filtros.name, mode: "insensitive" };

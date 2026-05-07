@@ -34,7 +34,7 @@ describe('ClientService - Buscas/Comparações', () => {
 
   describe('findAll', () => {
     it('deve retornar um array de clientes sem a senha', async () => {
-      const { password, ...clientWithoutPassword } = mockClient;
+      const { password: _password, ...clientWithoutPassword } = mockClient;
       mockPrismaService.client.findMany.mockResolvedValue([
         clientWithoutPassword,
       ]);

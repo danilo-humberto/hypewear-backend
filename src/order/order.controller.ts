@@ -4,11 +4,8 @@ import {
   Post,
   Body,
   Param,
-  NotFoundException,
-  ParseIntPipe,
   ParseUUIDPipe,
   UseGuards,
-  Req,
 } from "@nestjs/common";
 import { OrderService } from "./order.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
