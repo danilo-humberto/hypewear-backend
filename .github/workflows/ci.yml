@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hypewear_test
-      JWT_SECRET: ci-test-secret
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     steps:
       - name: Checkout
@@ -31,6 +31,9 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
+
+      - name: Run lint
+        run: npm run lint
 
       - name: Run tests
         run: npm test
